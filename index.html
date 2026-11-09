@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ky">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оюн Порталы</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* Фоновое изображение из вашего запроса */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.7)), url('https://unsplash.com') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(20, 20, 20, 0.85);
+            border: 2px solid #444;
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            color: #e0e0e0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .score-board {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        .score-board span {
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #555;
+            border-radius: 8px;
+            background: #222;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #00ffcc;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #00ffcc;
+            color: #111;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: #00b399;
+            transform: translateY(-2px);
+        }
+
+        button.secondary {
+            background: #ff5e62;
+            color: white;
+        }
+        button.secondary:hover {
+            background: #d14548;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active {
+            display: block;
+        }
+
+        /* Стили для меню игр */
+        .game-menu button {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .game-menu button:hover {
+            background: #444;
+            border-color: #00ffcc;
+        }
+
+        /* Интерактивные элементы игр */
+        .game-box {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px dashed #666;
+        }
+
+        .rope-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+        .rope {
+            height: 6px;
+            background: #aaa;
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            z-index: 1;
+        }
+        .marker {
+            width: 20px;
+            height: 20px;
+            background: red;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+            transition: left 0.1s ease;
+        }
+        .team {
+            font-weight: bold;
+            z-index: 3;
+            background: #222;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Таблица очков (Показывается после авторизации) -->
+    <div id="scoreBoard" class="score-board">
+        Игрок: <span id="userDisplay"></span> | Упай (Баллы): <span id="pointsDisplay">0</span>
+    </div>
+
+    <!-- 1 ЭКРАН: РЕГИСТРАЦИЯ -->
+    <div id="screenRegister" class="screen active">
+        <h1>Каттоо (Регистрация)</h1>
+        <p style="margin-bottom: 20px; color: #aaa;">Оюнду баштоо үчүн маалыматтарды киргизиңиз</p>
+        <input type="text" id="username" placeholder="Никнейм (Атыңыз)" required>
+        <input type="tel" id="phone" placeholder="Телефон номериңиз" required>
+        <button onclick="registerUser()">Кирүү / Катталуу</button>
+    </div>
+
+    <!-- 2 ЭКРАН: ГЛАВНОЕ МЕНЮ ИГР -->
+    <div id="screenMenu" class="screen">
+        <h2>Оюндар Менюсу</h2>
+        <p style="margin-bottom: 20px; color: #aaa;">Оюнду тандап, упай топтоңуз:</p>
+        <div class="game-menu">
+            <button onclick="openGame(1)">1. Суу машина (Унаа жарышы) <span>🚗 ▶</span></button>
+            <button onclick="openGame(2)">2. Күч сынашуу (Быстрый кликер) <span>💪 ▶</span></button>
+            <button onclick="openGame(3)">3. Аркан тартыш (Перетягивание) <span>🪢 ▶</span></button>
+        </div>
+        <button class="secondary" onclick="logout()">Чыгуу (Log out)</button>
+    </div>
+
+    <!-- 3 ЭКРАН: ИГРА 1 - СУУ МАШИНА -->
+    <div id="game1" class="screen">
+        <h2>Суу машина</h2>
+        <p style="margin-bottom: 15px;">Туура жолду таап, унааны сууга жеткириңиз! Кайсы багытты тандайсыз?</p>
+        <div class="game-box">
+            <p id="carStatus" style="font-size: 1.1rem; font-weight: bold; color: #00ffcc;">Унаа стартта турат...</p>
+        </div>
+        <button onclick="playCarGame('оңго')">Оңго бурулуу</button>
+        <button onclick="playCarGame('түз')">Түз кетүү</button>
+        <button onclick="playCarGame('солго')">Солго бурулуу</button>
+        <button class="secondary" style="margin-top: 15px;" onclick="backToMenu()">Менюго кайтуу</button>
+    </div>
+
+    <!-- 4 ЭКРАН: ИГРА 2 - КҮЧ СЫНАМАЙ -->
+    <div id="game2" class="screen">
+        <h2>Күч сынамай</h2>
+        <p style="margin-bottom: 15px;">10 секунд ичинде кнопканы мүмкүн болушунча көп бас! Максат: 40 клик.</p>
+        <div class="game-box">
+            <h3 id="clickTimer">Убакыт: 10</h3>
+            <h1 id="clickCount" style="font-size: 3rem; margin: 10px 0; color: #00ffcc;">0</h1>
+        </div>
+        <button id="clickBtn" onclick="registerClick()" disabled>Старт күтүү...</button>
+        <button id="startClickGameBtn" onclick="startClickGame()" style="background: #ffcc00;">Оюнду баштоо</button>
+        <button class="secondary" style="margin-top: 15px;" onclick="backToMenu()">Менюго кайтуу</button>
+    </div>
+
+    <!-- 5 ЭКРАН: ИГРА 3 - АРКАН ТАРТЫШ -->
+    <div id="game3" class="screen">
+        <h2>Аркан тартыш</h2>
+        <p style="margin-bottom: 10px;">"ТАРТ" баскычын тез-тез басып, арканды өз тарабыңа (Солго) тарт!</p>
+        
+        <div class="game-box">
+            <div class="rope-container">
+                <div class="team" style="color: #00ffcc;">Сиз</div>
+                <div class="rope"></div>
+                <div id="ropeMarker" class="marker"></div>
+                <div class="team" style="color: #ff5e62;">Каршылаш</div>
+            </div>
+            <p id="tugStatus" style="font-weight: bold;">Даяр болгондо баштоо баскычын бас!</p>
+        </div>
+
+        <button id="tugBtn" onclick="pullRope()" disabled>ТАРТ! 🪢</button>
+        <button id="startTugBtn" onclick="startTugGame()" style="background: #ffcc00;">Оюнду баштоо</button>
+        <button class="secondary" style="margin-top: 15px;" onclick="backToMenu()">Менюго кайтуу</button>
+    </div>
+</div>
+
+<script>
+    // Глобальные переменные пользователя
+    let currentUser = null;
+    let currentPoints = 0;
+
+    // Автоматическая проверка при загрузке страницы
+    window.onload = function() {
+        const savedUser = localStorage.getItem('game_user');
+        const savedPoints = localStorage.getItem('game_points');
+        if (savedUser) {
+            currentUser = savedUser;
+            currentPoints = parseInt(savedPoints) || 0;
+            showScreen('screenMenu');
+            updateScoreBoard();
+        }
+    }
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function updateScoreBoard() {
+        if (currentUser) {
+            document.getElementById('scoreBoard').style.display = 'block';
+            document.getElementById('userDisplay').innerText = currentUser;
+            document.getElementById('pointsDisplay').innerText = currentPoints;
+            localStorage.setItem('game_points', currentPoints);
+        } else {
+            document.getElementById('scoreBoard').style.display = 'none';
+        }
+    }
+
+    // РЕГИСТРАЦИЯ
+    function registerUser() {
+        const username = document.getElementById('username').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        if (!username || !phone) {
+            alert('Сураныч, бардык талааларды толтуруңуз!');
+            return;
+        }
+
+        currentUser = username;
+        currentPoints = 0; // Начать с 0 или загрузить прошлые данные, если ник совпадает
+        localStorage.setItem('game_user', currentUser);
+document.getElementById('tugStatus').innerText = 'Даяр болгондо баштоо баскычын бас!';
+document.getElementById('tugBtn').disabled = true;
+document.getElementById('startTugBtn').style.display = 'block';
+}
+function startTugGame() {
+resetTugGame();
+document.getElementById('startTugBtn').style.display = 'none';
+document.getElementById('tugBtn').disabled = false;
+document.getElementById('tugStatus').innerText = 'Оюн башталды! Тез-тез бас!';
+// Каршылаш (Бот) арканды оңго тартып турат
+tugInterval = setInterval(() => {
+markerPosition += 1.5; // Скорость тяги бота
+document.getElementById('ropeMarker').style.left = markerPosition + '%';
+if (markerPosition >= 90) {
+clearInterval(tugInterval);
+document.getElementById('tugBtn').disabled = true;
+document.getElementById('tugStatus').innerText = '❌ Сиз утулдуңуз! Арканды каршылаш тартып кетти.';
+document.getElementById('startTugBtn').style.display = 'block';
+}
+}, 100);
+}
+function pullRope() {
+markerPosition -= 4; // Сила клика игрока (тянет влево)
+if (markerPosition < 10) {
+markerPosition = 10;
+}
+document.getElementById('ropeMarker').style.left = markerPosition + '%';
+if (markerPosition <= 15) {
+clearInterval(tugInterval);
+document.getElementById('tugBtn').disabled = true;
+document.getElementById('tugStatus').innerHTML = '🎉 ЖЕҢИШ! Сиз арканды өз тарабыңызга тартып алдыңыз! +20 упай.';
+document.getElementById('startTugBtn').style.display = 'block';
+addPoints(20);
+}
+}
